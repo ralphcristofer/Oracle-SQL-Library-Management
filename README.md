@@ -1,2 +1,12 @@
-# COMP214 Section 404 Project
-# Group 3 - Library System
+# Library Database Management
+## COMP214_404_G3 - Advanced Database Concepts
+
+
+Group Members:
+
+* Alice Huynh
+* Ralph Cristofer Fugaban
+
+Professor:
+
+* Nicolai Ivascu
