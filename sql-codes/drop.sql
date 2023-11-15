@@ -6,17 +6,18 @@ BEGIN
 END;
 /
 
--- DROP SEQUENCE
-BEGIN
-  FOR s IN (SELECT sequence_name FROM user_sequences) LOOP
-    EXECUTE IMMEDIATE 'DROP SEQUENCE ' || s.sequence_name;
-  END LOOP;
-END;
-
-
 -- DROP INDEXES
 BEGIN
   FOR i IN (SELECT index_name FROM user_indexes WHERE table_owner = (SELECT USER FROM DUAL)) LOOP
     EXECUTE IMMEDIATE 'DROP INDEX ' || i.index_name;
   END LOOP;
 END;
+/
+
+-- DROP SEQUENCE
+BEGIN
+  FOR s IN (SELECT sequence_name FROM user_sequences) LOOP
+    EXECUTE IMMEDIATE 'DROP SEQUENCE ' || s.sequence_name;
+  END LOOP;
+END;
+/
