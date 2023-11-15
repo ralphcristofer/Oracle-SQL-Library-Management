@@ -5,10 +5,9 @@ INSERT INTO authors (authorid, fname, lname) VALUES (authors_authorid_seq.NEXTVA
 INSERT INTO authors (authorid, fname, lname) VALUES (authors_authorid_seq.NEXTVAL, 'Ana', 'Beltran');
 INSERT INTO authors (authorid, fname, lname) VALUES (authors_authorid_seq.NEXTVAL, 'Kathleen', 'Valencia');
 INSERT INTO authors (authorid, fname, lname) VALUES (authors_authorid_seq.NEXTVAL, 'Dylan', 'Huffman');
-
-
-SELECT * FROM authors;
-
-UPDATE authors
-SET authorid = authors_authorid_seq.nextval
-WHERE lname = 'Snow' AND fname='Amy'
+INSERT INTO authors (authorid, fname, lname) VALUES (authors_authorid_seq.NEXTVAL, 'Raelynn', 'Russo');
+INSERT INTO authors (authorid, fname, lname) VALUES (authors_authorid_seq.NEXTVAL, 'Anaya', 'Solomon');
+INSERT INTO authors (authorid, fname, lname) VALUES (authors_authorid_seq.NEXTVAL, 'Leah', 'Wilkinson');
+INSERT INTO authors (authorid, fname, lname) VALUES (authors_authorid_seq.NEXTVAL, 'Blake', 'Mullen');
+INSERT INTO authors (authorid, fname, lname) VALUES (authors_authorid_seq.NEXTVAL, 'Ellias', 'Ellis');
+INSERT INTO authors (authorid, fname, lname) VALUES (authors_authorid_seq.NEXTVAL, 'Zoe', 'Ware');
