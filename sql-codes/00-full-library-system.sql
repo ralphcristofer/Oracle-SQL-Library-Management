@@ -226,7 +226,7 @@ VALUES (checkout_checkoutid_seq.nextval, 4, 12, '2-NOV-2023', '3-NOV-2023', '11-
 INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date, return_date, is_pickedup, is_returned) 
 VALUES (checkout_checkoutid_seq.nextval, 4, 11, '1-DEC-2023', '2-DEC-2023', '6-DEC-2023', 'N', NULL);
 INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date, return_date, is_pickedup, is_returned) 
-VALUES (checkout_checkoutid_seq.nextval, 1, 12, '27-NOV-2023', '28-NOV-2023', '2-DEC-2023', 'N', NULL);
+VALUES (checkout_checkoutid_seq.nextval, 6, 12, '27-NOV-2023', '28-NOV-2023', '2-DEC-2023', 'N', NULL);
 INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date, return_date, is_pickedup, is_returned) 
 VALUES (checkout_checkoutid_seq.nextval, 2, 4, '15-NOV-2023', '16-NOV-2023', '28-NOV-2023', 'Y', 'N');
 INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date, return_date, is_pickedup, is_returned) 
