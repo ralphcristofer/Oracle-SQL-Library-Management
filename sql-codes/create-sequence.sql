@@ -28,14 +28,7 @@ CREATE SEQUENCE publishers_pubid_seq
     NOCYCLE;
 
 -- Create sequence for BOOK_COPY table
-CREATE SEQUENCE book_copy_bookid_seq 
-    START WITH 1 
-    INCREMENT BY 1
-    NOCACHE
-    NOCYCLE;
-
--- Create sequence for HOLD table
-CREATE SEQUENCE hold_holdid_seq 
+CREATE SEQUENCE book_copy_bookcopy_id_seq 
     START WITH 1 
     INCREMENT BY 1
     NOCACHE

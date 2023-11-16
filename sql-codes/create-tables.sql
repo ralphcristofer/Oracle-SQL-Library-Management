@@ -21,7 +21,7 @@ CREATE TABLE books (
     pubdate DATE,
     pubid INTEGER,
     category VARCHAR(255),
-    cost INTEGER,
+    cost DECIMAL(5,2),
     FOREIGN KEY (pubid) REFERENCES publisher(pubid)
 );
 
@@ -47,30 +47,19 @@ CREATE TABLE readers (
     zip VARCHAR(255)
 );
 
--- Create HOLD table
-CREATE TABLE hold (
-    holdid INTEGER PRIMARY KEY,
-    readerid INTEGER NOT NULL,
-    bookid INTEGER NOT NULL,
-    start_time DATE,
-    end_time DATE,
-    is_pickedup CHAR(1),
-    FOREIGN KEY (readerid) REFERENCES readers(readerid),
-    FOREIGN KEY (bookid) REFERENCES books(bookid)
-);
-
 -- Create CHECKOUT table
 CREATE TABLE checkout (
     checkoutid INTEGER PRIMARY KEY,
     readerid INTEGER,
-    bookid INTEGER,
-    orderdate DATE,
-    pickupdate DATE,
-    start_time DATE,
-    end_time DATE,
+    bookcopy_id INTEGER,
+    order_date DATE,
+    pickup_date DATE,
+    start_date DATE,
+    end_date DATE,
+    is_pickedup CHAR(1),
     is_returned CHAR(1),
     FOREIGN KEY (readerid) REFERENCES readers(readerid),
-    FOREIGN KEY (bookid) REFERENCES books(bookid)
+    FOREIGN KEY (bookcopy_id) REFERENCES book_copy(bookcopy_id)
 );
 
 -- Create BOOKS_AUTHORS table
