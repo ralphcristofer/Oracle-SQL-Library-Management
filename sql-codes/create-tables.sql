@@ -72,3 +72,10 @@ CREATE TABLE books_authors (
     -- It will be automatically indexed
     PRIMARY KEY (books_bookid, authors_authorid)
 );
+
+-- Create BOOK_ORDER table
+CREATE TABLE book_order (
+    bookid INTEGER PRIMARY KEY,
+    isbn INTEGER UNIQUE NOT NULL,
+    order_date DATE DEFAULT SYSDATE
+)

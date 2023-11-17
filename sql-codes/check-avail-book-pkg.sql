@@ -50,7 +50,7 @@ CREATE OR REPLACE PACKAGE BODY CHECK_AVAIL_BOOK_PKG
 END;
 /
 
---Anonymous block to test the package for when book isn found
+--Anonymous block to test the package for when book is found
 DECLARE
 p_isbn INTEGER:=350868646;
 BEGIN
