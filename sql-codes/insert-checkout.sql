@@ -19,3 +19,10 @@ INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date
 VALUES (checkout_checkoutid_seq.nextval, 9, 9, '20-NOV-2023', '21-NOV-2023', '29-NOV-2023', 'N', NULL);
 INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date, return_date, is_pickedup, is_returned) 
 VALUES (checkout_checkoutid_seq.nextval, 10, 10, '28-NOV-2023', '29-NOV-2023', '15-DEC-2023', 'N', 'N');
+INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date, return_date, is_pickedup, is_returned) 
+VALUES (checkout_checkoutid_seq.nextval, 11, 7, '12-NOV-2023', '20-NOV-2023', '20-NOV-2023', 'Y', 'N');
+INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date, return_date, is_pickedup, is_returned) 
+VALUES (checkout_checkoutid_seq.nextval, 12, 7, '25-NOV-2023', '15-DEC-2023', '15-DEC-2023', 'Y', 'N');
+INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date, return_date, is_pickedup, is_returned)
+VALUES (checkout_checkoutid_seq.nextval, 13, 7, '31-OCT-2023', '20-DEC-2023', '15-DEC-2023', 'Y', 'N');
+INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date, return_date, is_pickedup, is_returned) 
