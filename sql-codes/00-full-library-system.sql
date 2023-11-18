@@ -256,7 +256,6 @@ CREATE TABLE checkout (
 );
 
 -- Insert checkout data
--- Insert checkout data
 INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date, return_date, is_pickedup, is_returned) 
 VALUES (checkout_checkoutid_seq.nextval, 10, 1, '13-NOV-2023', '14-NOV-2023', '28-NOV-2023', 'Y', 'N');
 INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date, return_date, is_pickedup, is_returned) 
@@ -274,16 +273,13 @@ VALUES (checkout_checkoutid_seq.nextval, 2, 7, '15-NOV-2023', '16-NOV-2023', '28
 INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date, return_date, is_pickedup, is_returned) 
 VALUES (checkout_checkoutid_seq.nextval, 8, 8, '19-NOV-2023', '20-NOV-2023', '28-NOV-2023', 'N', NULL);
 INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date, return_date, is_pickedup, is_returned) 
-VALUES (checkout_checkoutid_seq.nextval, 9, 9, '20-NOV-2023', '21-NOV-2023', '29-NOV-2023', 'N', NULL);
+VALUES (checkout_checkoutid_seq.nextval, 7, 7, '12-NOV-2023', '20-NOV-2023', '31-DEC-2023', 'Y', 'Y');
 INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date, return_date, is_pickedup, is_returned) 
-VALUES (checkout_checkoutid_seq.nextval, 10, 10, '28-NOV-2023', '29-NOV-2023', '15-DEC-2023', 'N', 'N');
-INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date, return_date, is_pickedup, is_returned) 
-VALUES (checkout_checkoutid_seq.nextval, 11, 7, '12-NOV-2023', '20-NOV-2023', '20-NOV-2023', 'Y', 'N');
-INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date, return_date, is_pickedup, is_returned) 
-VALUES (checkout_checkoutid_seq.nextval, 12, 7, '25-NOV-2023', '15-DEC-2023', '15-DEC-2023', 'Y', 'N');
+VALUES (checkout_checkoutid_seq.nextval, 7, 7, '25-NOV-2023', '30-NOV-2023', '30-JAN-2024', 'Y', 'Y');
 INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date, return_date, is_pickedup, is_returned)
-VALUES (checkout_checkoutid_seq.nextval, 13, 7, '31-OCT-2023', '20-DEC-2023', '15-DEC-2023', 'Y', 'N');
-INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date, return_date, is_pickedup, is_returned) 
+VALUES (checkout_checkoutid_seq.nextval, 7, 7, '31-OCT-2023', '1-DEC-2023', '15-DEC-2023', 'Y', 'N');
+INSERT INTO checkout (checkoutid, readerid, bookcopy_id, order_date, pickup_date, return_date, is_pickedup, is_returned)
+VALUES (checkout_checkoutid_seq.nextval, 10, 1, '20-JULY-2023', '22-JULY-2023', '20-JAN-2024', 'Y', 'Y');
 
 -- Create index for CHECKOUT table
 CREATE INDEX idx_checkout_readerid ON checkout(readerid);
@@ -325,3 +321,10 @@ INSERT INTO books_authors (books_bookid, authors_authorid)
 VALUES (11,11);
 INSERT INTO books_authors (books_bookid, authors_authorid)
 VALUES (12,12);
+
+-- Create BOOK_ORDER table
+CREATE TABLE book_order (
+    bookid INTEGER PRIMARY KEY,
+    isbn INTEGER NOT NULL,
+    order_date DATE DEFAULT SYSDATE
+)

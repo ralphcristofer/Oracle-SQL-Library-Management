@@ -1,11 +1,11 @@
 CREATE OR REPLACE PACKAGE CHECK_AVAIL_BOOK_PKG
     IS
-        PROCEDURE GET_CHECKEDOUT_BOOK_SP (p_isbn IN VARCHAR2);
+        PROCEDURE GET_CHECKEDOUT_BOOK_SP (p_isbn IN INTEGER);
 END;
 /
 CREATE OR REPLACE PACKAGE BODY CHECK_AVAIL_BOOK_PKG
     IS
-    PROCEDURE GET_CHECKEDOUT_BOOK_SP (p_isbn IN VARCHAR2)
+    PROCEDURE GET_CHECKEDOUT_BOOK_SP (p_isbn IN INTEGER)
         AS
              is_available VARCHAR2(1);
              ex_not_found EXCEPTION;
@@ -30,11 +30,9 @@ CREATE OR REPLACE PACKAGE BODY CHECK_AVAIL_BOOK_PKG
                         --Then it is available
                             IF tbl_item(i).isbn <> p_isbn THEN
                                 is_available := 'Y';
-                                EXIT;
                         --When isbn is found in the checkedout cursor
                         --Then it is not available
                             ELSIF tbl_item(i).isbn = p_isbn THEN
-                                is_available := 'N';
                                 --Exception is raised when book isn't found
                                 RAISE ex_not_found;
                             END IF;
@@ -42,13 +40,17 @@ CREATE OR REPLACE PACKAGE BODY CHECK_AVAIL_BOOK_PKG
                     EXIT WHEN cur_book%NOTFOUND;
                 END LOOP;
             CLOSE cur_book;
+            IF is_available = 'Y' THEN
             DBMS_OUTPUT.PUT_LINE('Book is available.');
+            END IF;
     EXCEPTION 
         WHEN ex_not_found THEN
         DBMS_OUTPUT.PUT_LINE('Book is not available.');
     END GET_CHECKEDOUT_BOOK_SP;
 END;
 /
+
+
 
 --Anonymous block to test the package for when book is found
 DECLARE

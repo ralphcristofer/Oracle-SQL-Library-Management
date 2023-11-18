@@ -76,6 +76,6 @@ CREATE TABLE books_authors (
 -- Create BOOK_ORDER table
 CREATE TABLE book_order (
     bookid INTEGER PRIMARY KEY,
-    isbn INTEGER UNIQUE NOT NULL,
+    isbn INTEGER NOT NULL,
     order_date DATE DEFAULT SYSDATE
 )
