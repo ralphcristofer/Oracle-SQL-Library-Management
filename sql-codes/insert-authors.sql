@@ -1,4 +1,4 @@
--- Data inserts
+-- Insert data AUTHORS table
 INSERT INTO authors (authorid, fname, lname) 
 VALUES (authors_authorid_seq.NEXTVAL, 'Eliana', 'Landry');
 INSERT INTO authors (authorid, fname, lname) 
