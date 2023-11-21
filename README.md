@@ -30,7 +30,7 @@ Tasks:
    - Use of TYPE and/or ROWTYPE attribute whenever appropriate.
 
 Sample Diagram
-![image](https://github.com/Alice3105/COMP214-404-G3/blob/main/diagrams/ERD%20-%20Library%20System.png?raw=true)
+![image](https://github.com/ralphcristofer/Oracle-SQL-Library-Management/blob/main/diagrams/ERD%20-%20Library%20System.png?raw=true)
 
 ## NOTE
 There should be a minimum ten rows 10 insert statements for each data tables) and five rows (for reference/lookup type tables). You should populate your tables with meaningful data.
