@@ -1,3 +1,4 @@
+-- Procedure to fetch books by title from the 'books' table and output the details
 CREATE OR REPLACE PROCEDURE GET_BOOKS_BY_TITLE_SP (
         p_title IN VARCHAR2)
     IS
@@ -18,14 +19,17 @@ CREATE OR REPLACE PROCEDURE GET_BOOKS_BY_TITLE_SP (
             DBMS_OUTPUT.PUT_LINE('Book ID ' || v_bookid || ' ISBN ' || v_isbn || ' Title ' || v_title);
         END LOOP;
         
+        -- Raise an exception if no books were found
         IF v_cursor%NOTFOUND THEN
             RAISE ex_book_notfound;   
         END IF;
         
         CLOSE v_cursor;
         
+        -- Handle the exception and output a message
         EXCEPTION
             WHEN ex_book_notfound THEN
             DBMS_OUTPUT.PUT_LINE('Not found!');
             
 END GET_BOOKS_BY_TITLE_SP;
+/

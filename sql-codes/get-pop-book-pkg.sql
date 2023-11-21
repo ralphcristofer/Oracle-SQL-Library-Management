@@ -1,3 +1,5 @@
+-- Package that contains function to get the most popular book
+-- and a procedure to order it
 CREATE OR REPLACE PACKAGE GET_POP_BOOK_PK
 IS
     --Declare type_book here so that it can be returned in the function
@@ -6,9 +8,11 @@ IS
         bookcopy_id book_copy.bookcopy_id%TYPE
     );
 
+    -- Function to get the most popular book
     FUNCTION GET_POP_BOOK_SF
         RETURN type_book;
         
+    -- Procedure to order the most popular book
     PROCEDURE ORDER_POP_BOOK_SP;
     
 END GET_POP_BOOK_PK;
@@ -16,6 +20,7 @@ END GET_POP_BOOK_PK;
 
 CREATE OR REPLACE PACKAGE BODY GET_POP_BOOK_PK
 IS
+    -- Function returns the most popular book by the most checkouts
     FUNCTION GET_POP_BOOK_SF
         RETURN type_book
     IS
@@ -40,6 +45,7 @@ IS
             NULL; 
     END GET_POP_BOOK_SF;
     
+    -- Procedure to order the most popular book
     PROCEDURE ORDER_POP_BOOK_SP
         IS
             result_book GET_POP_BOOK_PK.type_book;

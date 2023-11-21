@@ -1,4 +1,4 @@
--- Drop Tables --
+-- Drops all tables
 BEGIN
   FOR t IN (SELECT TABLE_NAME FROM USER_TABLES) LOOP
     EXECUTE IMMEDIATE 'DROP TABLE "' || t.TABLE_NAME || '" CASCADE CONSTRAINTS';
@@ -6,7 +6,7 @@ BEGIN
 END;
 /
 
--- DROP INDEXES
+-- Drops all indexes
 BEGIN
   FOR i IN (SELECT index_name FROM user_indexes WHERE table_owner = (SELECT USER FROM DUAL)) LOOP
     EXECUTE IMMEDIATE 'DROP INDEX ' || i.index_name;
@@ -14,10 +14,26 @@ BEGIN
 END;
 /
 
--- DROP SEQUENCE
+-- Drops all sequences
 BEGIN
   FOR s IN (SELECT sequence_name FROM user_sequences) LOOP
     EXECUTE IMMEDIATE 'DROP SEQUENCE ' || s.sequence_name;
+  END LOOP;
+END;
+/
+
+-- Drops all triggers
+BEGIN
+  FOR t IN (SELECT trigger_name FROM user_triggers) LOOP
+    EXECUTE IMMEDIATE 'DROP TRIGGER ' || t.trigger_name;
+  END LOOP;
+END;
+/
+
+-- Drops all packages
+BEGIN
+  FOR p IN (SELECT object_name FROM user_objects WHERE object_type = 'PACKAGE') LOOP
+    EXECUTE IMMEDIATE 'DROP PACKAGE ' || p.object_name;
   END LOOP;
 END;
 /
@@ -327,4 +343,354 @@ CREATE TABLE book_order (
     bookid INTEGER PRIMARY KEY,
     isbn INTEGER NOT NULL,
     order_date DATE DEFAULT SYSDATE
-)
+);
+
+------------------------------------------------------
+----------------TRIGGER SECTION-----------------------
+------------------------------------------------------
+
+-- This trigger makes sure that book cost is a non-negative value
+CREATE OR REPLACE TRIGGER check_book_cost
+BEFORE INSERT OR UPDATE OF cost ON books
+FOR EACH ROW
+BEGIN
+  IF :NEW.cost < 0 THEN
+    RAISE_APPLICATION_ERROR(-20001, 'Book cost should not be negative');
+  END IF;
+END;
+/
+
+-- This trigger makes sure that phone is a 10-digit number.
+CREATE OR REPLACE TRIGGER check_phone_length
+BEFORE INSERT OR UPDATE OF phone ON readers
+FOR EACH ROW
+BEGIN
+  IF LENGTH(:NEW.phone) != 10 THEN
+    RAISE_APPLICATION_ERROR(-20002, 'Phone number should have 10 digits');
+  END IF;
+END;
+/
+
+-- This triggers makes sure that all books have unique ISBN
+CREATE OR REPLACE TRIGGER check_unique_isbn
+BEFORE INSERT OR UPDATE OF isbn ON books
+FOR EACH ROW
+DECLARE
+  v_count INTEGER;
+BEGIN
+  SELECT COUNT(*)
+  INTO v_count
+  FROM books
+  WHERE isbn = :NEW.isbn;
+
+  IF v_count > 0 THEN
+    RAISE_APPLICATION_ERROR(-20005, 'The book ISBN must be unique');
+  END IF;
+END;
+/
+
+-- This trigger checks the status of the checkedout book
+-- If the book is already pickedup, it makes sure to record 
+-- that the book is not returned yet.
+-- If the book is not yet pickedup, then it nothing to return.
+CREATE OR REPLACE TRIGGER update_checkout_status
+BEFORE INSERT OR UPDATE ON checkout
+FOR EACH ROW
+BEGIN
+  IF :NEW.pickup_date IS NOT NULL THEN
+    :NEW.is_pickedup := 'Y';
+    :NEW.is_returned := 'N';
+  ELSE
+    :NEW.is_pickedup := 'N';
+    :NEW.is_returned := NULL;
+  END IF;
+END;
+/
+
+------------------------------------------------------
+----------------PACKAGE SECTION-----------------------
+------------------------------------------------------
+
+-- Declare package with a procedure to get books by title
+CREATE OR REPLACE PACKAGE BOOK_SEARCH_PKG
+    IS
+        PROCEDURE GET_BOOKS_BY_TITLE_SP (
+        p_title IN VARCHAR2);
+END;
+/
+
+-- Body of the package and procedure
+CREATE OR REPLACE PACKAGE BODY BOOK_SEARCH_PKG
+    IS
+    PROCEDURE GET_BOOKS_BY_TITLE_SP (
+        p_title IN VARCHAR2)
+    IS
+        v_cursor SYS_REFCURSOR;
+        v_bookid books.bookid%TYPE;
+        v_isbn books.isbn%TYPE;
+        v_title books.title%TYPE;
+        ex_book_notfound EXCEPTION;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT b.bookid, b.isbn, b.title
+            FROM books b
+            WHERE title LIKE '%' || p_title || '%';
+        --Use loop because there can be multipe search result
+        LOOP
+            FETCH v_cursor INTO v_bookid, v_isbn, v_title;
+            EXIT WHEN v_cursor%NOTFOUND;
+            DBMS_OUTPUT.PUT_LINE('Book ID ' || v_bookid || ' ISBN ' || v_isbn || ' Title ' || v_title);
+        END LOOP;
+        
+        -- Raise an exception if no books were found
+        IF v_cursor%NOTFOUND THEN
+            RAISE ex_book_notfound;   
+        END IF;
+        
+        CLOSE v_cursor;
+        
+        -- Handle the exception and output a message
+        EXCEPTION
+            WHEN ex_book_notfound THEN
+            DBMS_OUTPUT.PUT_LINE('Not found!');
+            
+    END GET_BOOKS_BY_TITLE_SP;
+END;
+/
+
+------------------------------------------------------
+------------------------------------------------------
+
+-- Declare package with two functions:
+-- Calculate late fess
+-- Display checked out books
+CREATE OR REPLACE PACKAGE CAL_LATE_FEE_PKG
+IS
+    FUNCTION CALCULATE_LATE_FEE_SF
+    (p_checkout_id IN checkout.checkoutid%TYPE) 
+    RETURN NUMBER;
+    
+    FUNCTION DISPLAY_CHECKOUT_BOOK_SF
+    RETURN VARCHAR2;
+
+END;
+/
+
+CREATE OR REPLACE PACKAGE BODY CAL_LATE_FEE_PKG
+IS
+    -- Function to calculate the late fee for a given checkout ID
+    FUNCTION CALCULATE_LATE_FEE_SF
+    (p_checkout_id IN checkout.checkoutid%TYPE) 
+    RETURN NUMBER
+        IS
+            v_pickup_date DATE;
+            v_return_date DATE;
+            v_late_fee_per_day NUMBER := 3;
+            v_late_fee NUMBER := 0;
+        BEGIN
+    
+            SELECT pickup_date, return_date
+            INTO v_pickup_date, v_return_date
+            FROM checkout
+            WHERE checkoutid = p_checkout_id;
+        
+            --Condition that book is returned
+            IF v_return_date IS NOT NULL AND ((v_return_date - v_pickup_date)-30) > 0 THEN
+            --Cal late fee if the gap between the pickup date and return date is more than 30 days
+                v_late_fee := ((v_return_date - v_pickup_date)-30) * v_late_fee_per_day;
+            END IF;
+        
+            -- Ensure late fee is not negative
+            IF v_late_fee < 0 THEN
+                v_late_fee := 0;
+            END IF;
+
+        RETURN v_late_fee;
+    END CALCULATE_LATE_FEE_SF;
+    
+    -- Function to display the details of all checked out books
+    FUNCTION DISPLAY_CHECKOUT_BOOK_SF
+    RETURN VARCHAR2
+        IS
+            CURSOR cur_book IS
+            SELECT co.checkoutid, co.bookcopy_id, bc.isbn, b.title
+            FROM checkout co 
+            JOIN book_copy bc ON co.bookcopy_id = bc.bookcopy_id
+            JOIN books b ON bc.isbn = b.isbn;
+            result_string VARCHAR2(4000);
+        BEGIN
+        
+            -- Loop through the results and append each book's details to the result string
+            FOR checkout_rec IN cur_book LOOP
+              result_string := result_string || 'Checkout ID: ' || checkout_rec.checkoutid || CHR(10);
+              result_string := result_string || 'Bookcopy ID ' || checkout_rec.bookcopy_id || CHR(10);
+              result_string := result_string || 'ISBN ' || checkout_rec.isbn || CHR(10);
+              result_string := result_string || 'Title ' || checkout_rec.title || CHR(10);
+            END LOOP;
+
+        RETURN result_string;
+    END DISPLAY_CHECKOUT_BOOK_SF;
+END;
+/
+
+------------------------------------------------------
+------------------------------------------------------
+
+-- Declare a package with a procedure to get checked out books by ISBN
+CREATE OR REPLACE PACKAGE CHECK_AVAIL_BOOK_PKG
+    IS
+        PROCEDURE GET_CHECKEDOUT_BOOK_SP (p_isbn IN INTEGER);
+END;
+/
+
+-- Body of the package and procedure
+CREATE OR REPLACE PACKAGE BODY CHECK_AVAIL_BOOK_PKG
+    IS
+    
+    -- Procedure to check if a book with a given ISBN is checked out
+    PROCEDURE GET_CHECKEDOUT_BOOK_SP (p_isbn IN INTEGER)
+        AS
+             is_available VARCHAR2(1);
+             ex_not_found EXCEPTION;
+             ex_found EXCEPTION;
+             --Cursor to hold the checkedout book from the query
+             CURSOR cur_book IS
+             SELECT b.title AS title, b.isbn AS isbn
+                        FROM checkout c
+                            JOIN book_copy bc ON c.bookcopy_id = bc.bookcopy_id
+                            JOIN books b ON bc.isbn = b.isbn
+                        WHERE c.is_pickedup = 'Y';
+            --ROWTYPE is used because cursor may hold multiple values
+             TYPE type_book IS TABLE OF cur_book%ROWTYPE
+                INDEX BY PLS_INTEGER;
+                tbl_item type_book;
+        BEGIN
+            OPEN cur_book;
+                LOOP
+                    FETCH cur_book BULK COLLECT INTO tbl_item;
+                        FOR i IN 1..tbl_item.COUNT LOOP
+                        --When isbn isn't found in the checkedout cursor
+                        --Then it is available
+                            IF tbl_item(i).isbn <> p_isbn THEN
+                                is_available := 'Y';
+                        --When isbn is found in the checkedout cursor
+                        --Then it is not available
+                            ELSIF tbl_item(i).isbn = p_isbn THEN
+                                --Exception is raised when book isn't found
+                                RAISE ex_not_found;
+                            END IF;
+                        END LOOP;
+                    EXIT WHEN cur_book%NOTFOUND;
+                END LOOP;
+            CLOSE cur_book;
+            IF is_available = 'Y' THEN
+            DBMS_OUTPUT.PUT_LINE('Book is available.');
+            END IF;
+    EXCEPTION 
+        WHEN ex_not_found THEN
+        DBMS_OUTPUT.PUT_LINE('Book is not available.');
+    END GET_CHECKEDOUT_BOOK_SP;
+END;
+/
+
+------------------------------------------------------
+------------------------------------------------------
+
+-- Procedure to fetch books by title from the 'books' table and output the details
+CREATE OR REPLACE PROCEDURE GET_BOOKS_BY_TITLE_SP (
+        p_title IN VARCHAR2)
+    IS
+        v_cursor SYS_REFCURSOR;
+        v_bookid books.bookid%TYPE;
+        v_isbn books.isbn%TYPE;
+        v_title books.title%TYPE;
+        ex_book_notfound EXCEPTION;
+    BEGIN
+        OPEN v_cursor FOR
+            SELECT b.bookid, b.isbn, b.title
+            FROM books b
+            WHERE title LIKE '%' || p_title || '%';
+        --Use loop because there can be multipe search result
+        LOOP
+            FETCH v_cursor INTO v_bookid, v_isbn, v_title;
+            EXIT WHEN v_cursor%NOTFOUND;
+            DBMS_OUTPUT.PUT_LINE('Book ID ' || v_bookid || ' ISBN ' || v_isbn || ' Title ' || v_title);
+        END LOOP;
+        
+        -- Raise an exception if no books were found
+        IF v_cursor%NOTFOUND THEN
+            RAISE ex_book_notfound;   
+        END IF;
+        
+        CLOSE v_cursor;
+        
+        -- Handle the exception and output a message
+        EXCEPTION
+            WHEN ex_book_notfound THEN
+            DBMS_OUTPUT.PUT_LINE('Not found!');
+            
+END GET_BOOKS_BY_TITLE_SP;
+/
+
+------------------------------------------------------
+------------------------------------------------------
+
+-- Package that contains function to get the most popular book
+-- and a procedure to order it
+CREATE OR REPLACE PACKAGE GET_POP_BOOK_PK
+IS
+    --Declare type_book here so that it can be returned in the function
+    TYPE type_book IS RECORD (
+        isbn book_copy.isbn%TYPE,
+        bookcopy_id book_copy.bookcopy_id%TYPE
+    );
+
+    -- Function to get the most popular book
+    FUNCTION GET_POP_BOOK_SF
+        RETURN type_book;
+        
+    -- Procedure to order the most popular book
+    PROCEDURE ORDER_POP_BOOK_SP;
+    
+END GET_POP_BOOK_PK;
+/
+
+CREATE OR REPLACE PACKAGE BODY GET_POP_BOOK_PK
+IS
+    -- Function returns the most popular book by the most checkouts
+    FUNCTION GET_POP_BOOK_SF
+        RETURN type_book
+    IS
+        rec_book type_book;
+    BEGIN
+        SELECT bc.isbn, a.bookcopy_id
+        INTO rec_book
+        FROM book_copy bc
+        JOIN (
+            SELECT bookcopy_id, COUNT(*) AS checkout_count
+            FROM CHECKOUT 
+            GROUP BY bookcopy_id
+            ORDER BY checkout_count DESC
+            FETCH FIRST 1 ROW ONLY
+        ) a
+        ON bc.bookcopy_id = a.bookcopy_id;
+
+        RETURN rec_book;
+    EXCEPTION
+        WHEN NO_DATA_FOUND THEN
+            --Return NULL when no data found.
+            NULL; 
+    END GET_POP_BOOK_SF;
+    
+    -- Procedure to order the most popular book
+    PROCEDURE ORDER_POP_BOOK_SP
+        IS
+            result_book GET_POP_BOOK_PK.type_book;
+    BEGIN
+        result_book := GET_POP_BOOK_PK.GET_POP_BOOK_SF;
+        INSERT INTO book_order(bookid, isbn)
+        --Use sequence to generate bookid
+        VALUES (book_copy_bookcopy_id_seq.nextval, result_book.isbn);
+    END ORDER_POP_BOOK_SP;
+END GET_POP_BOOK_PK;
+/

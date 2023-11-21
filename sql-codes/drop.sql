@@ -21,3 +21,19 @@ BEGIN
   END LOOP;
 END;
 /
+
+-- DROP TRIGGERS
+BEGIN
+  FOR t IN (SELECT trigger_name FROM user_triggers) LOOP
+    EXECUTE IMMEDIATE 'DROP TRIGGER ' || t.trigger_name;
+  END LOOP;
+END;
+/
+
+-- DROP PACKAGES
+BEGIN
+  FOR p IN (SELECT object_name FROM user_objects WHERE object_type = 'PACKAGE') LOOP
+    EXECUTE IMMEDIATE 'DROP PACKAGE ' || p.object_name;
+  END LOOP;
+END;
+/

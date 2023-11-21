@@ -1,10 +1,15 @@
+-- Declare a package with a procedure to get checked out books by ISBN
 CREATE OR REPLACE PACKAGE CHECK_AVAIL_BOOK_PKG
     IS
         PROCEDURE GET_CHECKEDOUT_BOOK_SP (p_isbn IN INTEGER);
 END;
 /
+
+-- Body of the package and procedure
 CREATE OR REPLACE PACKAGE BODY CHECK_AVAIL_BOOK_PKG
     IS
+    
+    -- Procedure to check if a book with a given ISBN is checked out
     PROCEDURE GET_CHECKEDOUT_BOOK_SP (p_isbn IN INTEGER)
         AS
              is_available VARCHAR2(1);
@@ -49,8 +54,6 @@ CREATE OR REPLACE PACKAGE BODY CHECK_AVAIL_BOOK_PKG
     END GET_CHECKEDOUT_BOOK_SP;
 END;
 /
-
-
 
 --Anonymous block to test the package for when book is found
 DECLARE

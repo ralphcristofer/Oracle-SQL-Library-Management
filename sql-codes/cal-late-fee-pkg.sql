@@ -1,3 +1,6 @@
+-- Declare package with two functions:
+-- Calculate late fess
+-- Display checked out books
 CREATE OR REPLACE PACKAGE CAL_LATE_FEE_PKG
 IS
     FUNCTION CALCULATE_LATE_FEE_SF
@@ -9,8 +12,10 @@ IS
 
 END;
 /
+
 CREATE OR REPLACE PACKAGE BODY CAL_LATE_FEE_PKG
 IS
+    -- Function to calculate the late fee for a given checkout ID
     FUNCTION CALCULATE_LATE_FEE_SF
     (p_checkout_id IN checkout.checkoutid%TYPE) 
     RETURN NUMBER
@@ -32,6 +37,7 @@ IS
                 v_late_fee := ((v_return_date - v_pickup_date)-30) * v_late_fee_per_day;
             END IF;
         
+            -- Ensure late fee is not negative
             IF v_late_fee < 0 THEN
                 v_late_fee := 0;
             END IF;
@@ -39,6 +45,7 @@ IS
         RETURN v_late_fee;
     END CALCULATE_LATE_FEE_SF;
     
+    -- Function to display the details of all checked out books
     FUNCTION DISPLAY_CHECKOUT_BOOK_SF
     RETURN VARCHAR2
         IS
@@ -50,6 +57,7 @@ IS
             result_string VARCHAR2(4000);
         BEGIN
         
+            -- Loop through the results and append each book's details to the result string
             FOR checkout_rec IN cur_book LOOP
               result_string := result_string || 'Checkout ID: ' || checkout_rec.checkoutid || CHR(10);
               result_string := result_string || 'Bookcopy ID ' || checkout_rec.bookcopy_id || CHR(10);
@@ -60,3 +68,4 @@ IS
         RETURN result_string;
     END DISPLAY_CHECKOUT_BOOK_SF;
 END;
+/
