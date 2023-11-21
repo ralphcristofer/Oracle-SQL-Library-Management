@@ -44,3 +44,10 @@ CREATE OR REPLACE PACKAGE BODY BOOK_SEARCH_PKG
     END GET_BOOKS_BY_TITLE_SP;
 END;
 /
+
+--Anonymous block for testing
+DECLARE
+    p_title VARCHAR2(225):= '&Enter_Book_Name';
+BEGIN
+    BOOK_SEARCH_PKG.GET_BOOKS_BY_TITLE_SP(p_title);
+END;

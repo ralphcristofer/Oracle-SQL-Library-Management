@@ -61,6 +61,7 @@ p_isbn INTEGER:=350868646;
 BEGIN
 CHECK_AVAIL_BOOK_PKG.GET_CHECKEDOUT_BOOK_SP(p_isbn);
 END;
+/
 
 --Anonymous block to test the package for when book isn't found
 DECLARE
@@ -68,3 +69,4 @@ p_isbn INTEGER:=3508689646;
 BEGIN
 CHECK_AVAIL_BOOK_PKG.GET_CHECKEDOUT_BOOK_SP(p_isbn);
 END;
+/

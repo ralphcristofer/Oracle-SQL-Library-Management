@@ -69,3 +69,21 @@ IS
     END DISPLAY_CHECKOUT_BOOK_SF;
 END;
 /
+
+--Anonymous block to test the CALCULATE_LATE_FEE_SF
+DECLARE
+    lv_late_fee NUMBER;
+BEGIN
+  lv_late_fee := CAL_LATE_FEE_PKG.CALCULATE_LATE_FEE_SF(12);
+  DBMS_OUTPUT.PUT_LINE(lv_late_fee);
+END;
+/
+
+--Anonymous block to test the DISPLAY_CHECKOUT_BOOK_SF
+DECLARE
+    lv_checkout_book_info VARCHAR2(4000);
+BEGIN
+  lv_checkout_book_info := CAL_LATE_FEE_PKG.DISPLAY_CHECKOUT_BOOK_SF;
+  DBMS_OUTPUT.PUT_LINE(lv_checkout_book_info);
+END;
+/
